@@ -255,6 +255,15 @@
       text-align: center;
     }
 
+    .download-status {
+      display: none;
+      margin-top: 12px;
+      font-size: 14px;
+      line-height: 1.7;
+      text-align: center;
+      color: #ffe8b0;
+    }
+
     .ref-box {
       margin: 20px auto 0;
       max-width: 520px;
@@ -471,7 +480,7 @@
           </div>
 
           <div class="cta-row">
-            <a class="btn btn-primary" href="https://github.com/mixman222/mixman222.github.io/releases/download/v1.0.1/app-release.apk" id="downloadBtn">
+            <a class="btn btn-primary" href="https://github.com/mixman222/mixman222.github.io/releases/download/v1.0.2/app-release.apk" id="downloadBtn">
               Download APK
             </a>
             <a class="btn btn-secondary" href="luckydrawvip://open" id="openAppBtn">
@@ -480,8 +489,10 @@
           </div>
 
           <div class="note">
-            Download the APK, install it, then tap Open App to continue with your referral code automatically.
+            If a referral code is detected, we will prepare it before the APK download starts so you can open the app after installation.
           </div>
+
+          <div class="download-status" id="downloadStatus"></div>
         </div>
 
         <div class="features">
@@ -553,10 +564,24 @@
       const params = new URLSearchParams(window.location.search);
       const ref = params.get('ref');
 
+      const downloadBtn = document.getElementById('downloadBtn');
       const openAppBtn = document.getElementById('openAppBtn');
       const webBtn = document.getElementById('webBtn');
       const refBox = document.getElementById('refBox');
       const refCodeText = document.getElementById('refCodeText');
+      const downloadStatus = document.getElementById('downloadStatus');
+      const downloadUrl = downloadBtn.getAttribute('href');
+
+      function showDownloadStatus(message, isError) {
+        if (!downloadStatus) return;
+        downloadStatus.textContent = message;
+        downloadStatus.style.display = 'block';
+        downloadStatus.style.color = isError ? '#ffd0b3' : '#ffe8b0';
+      }
+
+      function startDownload() {
+        window.location.href = downloadUrl;
+      }
 
       if (ref && ref.trim() !== '') {
         const cleanRef = ref.trim();
@@ -564,6 +589,27 @@
         webBtn.href = 'https://luckydrawvip-6776e.web.app/?ref=' + encodeURIComponent(cleanRef);
         refCodeText.textContent = cleanRef;
         refBox.style.display = 'block';
+
+        downloadBtn.addEventListener('click', async function(event) {
+          event.preventDefault();
+
+          const clipboardValue = 'ref=' + cleanRef;
+          let copied = false;
+
+          if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(clipboardValue);
+              copied = true;
+              showDownloadStatus('Referral code saved. After installation, open the app directly.');
+            } catch (error) {
+              showDownloadStatus('APK download started. If the referral does not appear automatically, use code: ' + cleanRef, true);
+            }
+          } else {
+            showDownloadStatus('APK download started. If the referral does not appear automatically, use code: ' + cleanRef, true);
+          }
+
+          setTimeout(startDownload, copied ? 120 : 0);
+        });
       } else {
         openAppBtn.href = 'luckydrawvip://open';
         webBtn.href = 'https://luckydrawvip-6776e.web.app';
