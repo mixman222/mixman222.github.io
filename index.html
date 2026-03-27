@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -225,6 +226,7 @@
       font-weight: bold;
       text-decoration: none;
       transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      cursor: pointer;
     }
 
     .btn-primary {
@@ -252,6 +254,24 @@
       font-size: 15px;
       color: var(--text-muted);
       text-align: center;
+    }
+
+    .ref-box {
+      margin: 20px auto 0;
+      max-width: 520px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 220, 140, 0.05);
+      border: 1px solid rgba(255, 220, 140, 0.11);
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-soft);
+    }
+
+    .ref-code {
+      font-weight: bold;
+      color: #fff0c6;
+      word-break: break-word;
     }
 
     .features {
@@ -446,14 +466,22 @@
             and enjoy a smooth mobile experience designed for players who love action and competition.
           </div>
 
+          <div class="ref-box" id="refBox" style="display:none;">
+            Referral code detected:
+            <span class="ref-code" id="refCodeText"></span>
+          </div>
+
           <div class="cta-row">
-            <a class="btn btn-primary" href="https://github.com/mixman222/mixman222.github.io/releases/download/v1.0.0/app-arm64-v8a-release.apk">
+            <a class="btn btn-primary" href="https://github.com/mixman222/mixman222.github.io/releases/download/v1.0.0/app-arm64-v8a-release.apk" id="downloadBtn">
               Download APK
+            </a>
+            <a class="btn btn-secondary" href="luckydrawvip://open" id="openAppBtn">
+              Open App
             </a>
           </div>
 
           <div class="note">
-            Recommended for most Android phones: arm64-v8a version.
+            Download the APK, install it, then tap Open App to continue with your referral code automatically.
           </div>
         </div>
 
@@ -508,17 +536,40 @@
           </div>
 
           <div class="side-actions">
-            <a class="btn btn-secondary" href="https://luckydrawvip-6776e.web.app">
+            <a class="btn btn-secondary" href="https://luckydrawvip-6776e.web.app" id="webBtn">
               Play on Web
             </a>
           </div>
 
           <div class="note">
-            iPhone users can access the game instantly from the web link.
+            The referral code will continue through the web link automatically.
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+
+      const openAppBtn = document.getElementById('openAppBtn');
+      const webBtn = document.getElementById('webBtn');
+      const refBox = document.getElementById('refBox');
+      const refCodeText = document.getElementById('refCodeText');
+
+      if (ref && ref.trim() !== '') {
+        const cleanRef = ref.trim();
+        openAppBtn.href = 'luckydrawvip://open?ref=' + encodeURIComponent(cleanRef);
+        webBtn.href = 'https://luckydrawvip-6776e.web.app/?ref=' + encodeURIComponent(cleanRef);
+        refCodeText.textContent = cleanRef;
+        refBox.style.display = 'block';
+      } else {
+        openAppBtn.href = 'luckydrawvip://open';
+        webBtn.href = 'https://luckydrawvip-6776e.web.app';
+      }
+    })();
+  </script>
 </body>
 </html>
