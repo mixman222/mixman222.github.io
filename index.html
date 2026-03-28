@@ -282,12 +282,23 @@
       word-break: break-word;
       user-select: text;
       -webkit-user-select: text;
-      cursor: text;
+      cursor: pointer;
       padding: 2px 6px;
       border-radius: 8px;
       background: rgba(255, 220, 140, 0.08);
       display: inline-block;
+      transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
     }
+
+    .ref-code:hover {
+      opacity: 0.96;
+      box-shadow: 0 0 0 1px rgba(255, 220, 140, 0.18) inset;
+    }
+
+    .ref-code:active {
+      transform: scale(0.99);
+    }
+
 
     .features {
       position: relative;
@@ -486,7 +497,7 @@
             Referral code detected:
             <span class="ref-code" id="refCodeText" title="You can select and copy this code"></span>
             <div style="margin-top:8px;font-size:13px;color:#d9c59a;">
-              You can select this code directly or use the Copy Referral Code button.
+              You can click this code directly to copy it, or use the Copy Referral Code button.
             </div>
           </div>
 
@@ -607,11 +618,56 @@
         showDownloadStatus('Copy this referral code manually and enter it on the registration page: ' + code, true);
       }
 
+
+      async function copyReferralCode(value, preferStatusMessage) {
+        const textToCopy = (value || '').trim();
+        if (!textToCopy) return false;
+
+        if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(textToCopy);
+            if (preferStatusMessage) {
+              showDownloadStatus('Referral code copied. You can paste it during sign up.');
+            }
+            return true;
+          } catch (error) {
+            // fall through to legacy copy method
+          }
+        }
+
+        try {
+          const temp = document.createElement('textarea');
+          temp.value = textToCopy;
+          temp.setAttribute('readonly', '');
+          temp.style.position = 'absolute';
+          temp.style.left = '-9999px';
+          document.body.appendChild(temp);
+          temp.select();
+          const copied = document.execCommand('copy');
+          document.body.removeChild(temp);
+
+          if (copied && preferStatusMessage) {
+            showDownloadStatus('Referral code copied. You can paste it during sign up.');
+          }
+          return copied;
+        } catch (error) {
+          if (preferStatusMessage) {
+            showDownloadStatus('Could not copy automatically. Please copy the code manually: ' + textToCopy, true);
+          }
+          return false;
+        }
+      }
+
       if (ref && ref.trim() !== '') {
         const cleanRef = ref.trim().toUpperCase();
         webBtn.href = 'https://luckydrawvip-6776e.web.app/?ref=' + encodeURIComponent(cleanRef);
         refCodeText.textContent = cleanRef;
         refBox.style.display = 'block';
+
+        refCodeText.addEventListener('click', function() {
+          copyReferralCode(cleanRef, true);
+        });
+
         copyCodeBtn.style.display = 'inline-flex';
         downloadNote.textContent = 'If someone invited you, copy the referral code before downloading the APK, then enter it manually on the registration page after installing the app.';
 
