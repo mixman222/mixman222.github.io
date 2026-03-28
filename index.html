@@ -475,7 +475,7 @@
           </div>
 
           <div class="ref-box" id="refBox" style="display:none;">
-            Referral code detected:
+            Referral code from your inviter:
             <span class="ref-code" id="refCodeText"></span>
           </div>
 
@@ -483,13 +483,13 @@
             <a class="btn btn-primary" href="https://github.com/mixman222/mixman222.github.io/releases/download/v1.0.2/app-release.apk" id="downloadBtn">
               Download APK
             </a>
-            <a class="btn btn-secondary" href="luckydrawvip://open" id="openAppBtn">
-              Open App
-            </a>
+            <button class="btn btn-secondary" type="button" id="copyCodeBtn" style="display:none; border:0;">
+              Copy Referral Code
+            </button>
           </div>
 
-          <div class="note">
-            If a referral code is detected, we will prepare it before the APK download starts so you can open the app after installation.
+          <div class="note" id="downloadNote">
+            If someone invited you, copy the referral code and enter it on the registration page after installing the app.
           </div>
 
           <div class="download-status" id="downloadStatus"></div>
@@ -565,11 +565,12 @@
       const ref = params.get('ref');
 
       const downloadBtn = document.getElementById('downloadBtn');
-      const openAppBtn = document.getElementById('openAppBtn');
+      const copyCodeBtn = document.getElementById('copyCodeBtn');
       const webBtn = document.getElementById('webBtn');
       const refBox = document.getElementById('refBox');
       const refCodeText = document.getElementById('refCodeText');
       const downloadStatus = document.getElementById('downloadStatus');
+      const downloadNote = document.getElementById('downloadNote');
       const downloadUrl = downloadBtn.getAttribute('href');
 
       function showDownloadStatus(message, isError) {
@@ -583,35 +584,37 @@
         window.location.href = downloadUrl;
       }
 
+      async function copyReferralCode(code) {
+        if (!code) return;
+
+        if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(code);
+            showDownloadStatus('Referral code copied. Paste it on the registration page after installing the app.');
+            return;
+          } catch (error) {
+          }
+        }
+
+        showDownloadStatus('Copy this referral code manually and enter it on the registration page: ' + code, true);
+      }
+
       if (ref && ref.trim() !== '') {
-        const cleanRef = ref.trim();
-        openAppBtn.href = 'luckydrawvip://open?ref=' + encodeURIComponent(cleanRef);
+        const cleanRef = ref.trim().toUpperCase();
         webBtn.href = 'https://luckydrawvip-6776e.web.app/?ref=' + encodeURIComponent(cleanRef);
         refCodeText.textContent = cleanRef;
         refBox.style.display = 'block';
+        copyCodeBtn.style.display = 'inline-flex';
+        downloadNote.textContent = 'If someone invited you, copy the referral code before downloading the APK, then enter it manually on the registration page after installing the app.';
 
-        downloadBtn.addEventListener('click', async function(event) {
-          event.preventDefault();
+        copyCodeBtn.addEventListener('click', function() {
+          copyReferralCode(cleanRef);
+        });
 
-          const clipboardValue = 'ref=' + cleanRef;
-          let copied = false;
-
-          if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
-            try {
-              await navigator.clipboard.writeText(clipboardValue);
-              copied = true;
-              showDownloadStatus('Referral code saved. After installation, open the app directly.');
-            } catch (error) {
-              showDownloadStatus('APK download started. If the referral does not appear automatically, use code: ' + cleanRef, true);
-            }
-          } else {
-            showDownloadStatus('APK download started. If the referral does not appear automatically, use code: ' + cleanRef, true);
-          }
-
-          setTimeout(startDownload, copied ? 120 : 0);
+        downloadBtn.addEventListener('click', function() {
+          showDownloadStatus('After installation, open the app, go to registration, and enter referral code: ' + cleanRef);
         });
       } else {
-        openAppBtn.href = 'luckydrawvip://open';
         webBtn.href = 'https://luckydrawvip-6776e.web.app';
       }
     })();
