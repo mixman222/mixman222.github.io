@@ -280,6 +280,13 @@
       font-weight: bold;
       color: #fff0c6;
       word-break: break-word;
+      user-select: text;
+      -webkit-user-select: text;
+      cursor: text;
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: rgba(255, 220, 140, 0.08);
+      display: inline-block;
     }
 
     .features {
@@ -474,9 +481,13 @@
             and enjoy a smooth mobile experience designed for players who love action and competition.
           </div>
 
+
           <div class="ref-box" id="refBox" style="display:none;">
-            Referral code from your inviter:
-            <span class="ref-code" id="refCodeText"></span>
+            Referral code detected:
+            <span class="ref-code" id="refCodeText" title="You can select and copy this code"></span>
+            <div style="margin-top:8px;font-size:13px;color:#d9c59a;">
+              You can select this code directly or use the Copy Referral Code button.
+            </div>
           </div>
 
           <div class="cta-row">
