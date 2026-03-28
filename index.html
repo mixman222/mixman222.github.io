@@ -590,7 +590,6 @@
       const refCodeText = document.getElementById('refCodeText');
       const downloadStatus = document.getElementById('downloadStatus');
       const downloadNote = document.getElementById('downloadNote');
-      const downloadUrl = downloadBtn.getAttribute('href');
 
       function showDownloadStatus(message, isError) {
         if (!downloadStatus) return;
@@ -598,26 +597,6 @@
         downloadStatus.style.display = 'block';
         downloadStatus.style.color = isError ? '#ffd0b3' : '#ffe8b0';
       }
-
-      function startDownload() {
-        window.location.href = downloadUrl;
-      }
-
-      async function copyReferralCode(code) {
-        if (!code) return;
-
-        if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
-          try {
-            await navigator.clipboard.writeText(code);
-            showDownloadStatus('Referral code copied. Paste it on the registration page after installing the app.');
-            return;
-          } catch (error) {
-          }
-        }
-
-        showDownloadStatus('Copy this referral code manually and enter it on the registration page: ' + code, true);
-      }
-
 
       async function copyReferralCode(value, preferStatusMessage) {
         const textToCopy = (value || '').trim();
@@ -658,25 +637,29 @@
         }
       }
 
+      downloadBtn.addEventListener('click', function() {
+        if (ref && ref.trim() !== '') {
+          const cleanRef = ref.trim().toUpperCase();
+          showDownloadStatus('After installation, open the app, go to registration, and enter referral code: ' + cleanRef);
+        } else {
+          showDownloadStatus('APK download started.');
+        }
+      });
+
       if (ref && ref.trim() !== '') {
         const cleanRef = ref.trim().toUpperCase();
         webBtn.href = 'https://luckydrawvip-6776e.web.app/?ref=' + encodeURIComponent(cleanRef);
         refCodeText.textContent = cleanRef;
         refBox.style.display = 'block';
+        copyCodeBtn.style.display = 'inline-flex';
+        downloadNote.textContent = 'If someone invited you, copy the referral code before downloading the APK, then enter it manually on the registration page after installing the app.';
 
         refCodeText.addEventListener('click', function() {
           copyReferralCode(cleanRef, true);
         });
 
-        copyCodeBtn.style.display = 'inline-flex';
-        downloadNote.textContent = 'If someone invited you, copy the referral code before downloading the APK, then enter it manually on the registration page after installing the app.';
-
         copyCodeBtn.addEventListener('click', function() {
-          copyReferralCode(cleanRef);
-        });
-
-        downloadBtn.addEventListener('click', function() {
-          showDownloadStatus('After installation, open the app, go to registration, and enter referral code: ' + cleanRef);
+          copyReferralCode(cleanRef, true);
         });
       } else {
         webBtn.href = 'https://luckydrawvip-6776e.web.app';
